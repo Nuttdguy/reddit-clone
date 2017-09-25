@@ -1,23 +1,43 @@
-const express = require('express');
-const handlebars = require('express-handlebars');
+const express = require('express'),
+    handlebars = require('express-handlebars'),
+    mongoose = require('mongoose'),
+    bodyParser = require('body-parser'),
+    methodOverride = require('method-override'),
+    postController = require('./controllers/posts.controller');
 
-const app = express();
+
+const mainapp = express();
 const router = express.Router();
 
+
+const portNumber = process.env.CRUD_PORT_NR || 3000;
+
+
 // Set configuration
-app.engine('handlebars', handlebars({ defaultLayout: 'main'}));
-app.set('view engine', 'handlebars');
-app.use('/', router);
+mainapp.engine('handlebars', handlebars({ defaultLayout: 'main'}));
+mainapp.set('view engine', 'handlebars');
+mainapp.use(bodyParser.urlencoded( { extended: true }));
+mainapp.use(methodOverride('_method'));
+mainapp.use(express.static('./public'));
 
 
-// Routes
-router.get('/', (req, res) => {
-    res.render('home', {});
-});
+mongoose.connect('mongodb://localhost/reddit-clone');
+
+
+mainapp.use('/', router);
+
+
+// Post routes
+router.get('/', postController.getHome);
+
+router.get('/posts/', postController.createPost);
+router.post('/posts/', postController.postNew);
+
+router.get('/posts/:id', postController.getPostById);
 
 
 // Set application port
-app.listen(3000, () => {
-    console.log('Application is running on port 3000')
+mainapp.listen(portNumber, () => {
+    console.log('Application is running on port == ' + portNumber);
 });
 

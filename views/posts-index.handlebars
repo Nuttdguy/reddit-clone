@@ -1,0 +1,15 @@
+<div class="row">
+    <div class="col-sm-8 col-sm-offset-2">
+        <a href="/posts">create new post</a><br>
+
+        {{#each post}}
+
+            <li class="list-group-item">
+                <div class="lead">{{this.title}}</div>
+                <a href="{{this.url}}" target="_blank">{{this.url}}</a><br>
+                <a href="/posts/{{this._id}}">View Detail</a>
+            </li>
+
+        {{/each}}
+    </div>
+</div>
