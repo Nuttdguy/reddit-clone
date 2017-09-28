@@ -1,0 +1,16 @@
+<div class="row">
+    <div class="col-sm-6 col-sm-offset-3">
+
+        <h3>| {{post.title}} :: <a href="{{post.url}}" class="lead">{{post.url}}</a></h3>
+        <h4>| Summary </h4>
+        <p>{{post.summary}}</p>
+        <hr>
+        <h4>Comments</h4>
+        {{#each post.comment}}
+            <div>
+                <p>{{@index }}: {{this.content}}</p>
+            </div>
+        {{/each}}
+
+    </div>
+</div>

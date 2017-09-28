@@ -1,9 +1,14 @@
-const PostModel = require('../models/posts.model');
+const PostModel = require('../models/posts.model'),
+    CommentModel = require('../models/comments.model');
 
 
 exports.getHome = (req, res) => {
     PostModel.find().exec((err, posts) => {
-        res.render('posts-index', {posts: posts});
+        CommentModel.find().exec( (err, comments) => {
+            res.render('posts-index', {
+                posts: posts,
+                comments: comments });
+        });
     });
 };
 
@@ -12,33 +17,26 @@ exports.createPost = (req, res) => {
 };
 
 exports.postNew = (req, res) => {
-    let post = new PostModel(req.body); // Instantiate a new post model
-
-    post.save((err, post) => {
+    newPost = new PostModel(req.body);
+    newPost.save().then( post => {
         res.redirect('/');
     });
 };
 
 exports.getPostById = (req, res) => {
-    PostModel.findById(req.params.id).exec((err, post) => {
+    PostModel.findById(req.params.id).populate('comment').exec((err, post) => {
+        console.log('This is GET POST BY ID');
+        console.log(post);
         res.render('posts-show', {post});
     })
 };
 
 exports.getPostReddit = (req, res) => {
-    // console.log(req.params.subreddit);
     PostModel.find( { subreddit: req.params.subreddit } )
         .exec( (err, posts) => {
             res.render('posts-index', { posts: posts });
         });
 };
-
-// add comment
-exports.newComment = (req, res) => {
-    res.redirect()
-};
-
-// save comment
 
 
 // exports.postReddit = (req, res) => {

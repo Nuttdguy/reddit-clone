@@ -1,19 +1,39 @@
-const Comment = require('../models/comments.model');
+const CommentModel = require('../models/comments.model'),
+    PostModel = require('../models/posts.model');
 
 
-exports.newComment = (req, res, next) => {
-  return res.render('comments-new');
+exports.newComment = (req, res) => {
+    console.log(req.params.postId);
+    PostModel.findById(req.params.postId).exec((err, post) => {
+        // console.log(post);
+        res.render('comments-new', { post });
+    });
 };
 
 
-exports.saveComments = (req, res, next) => {
-    // INSTANTIATE INSTANCE OF MODEL
-    const comment = new Comment(req.body);
+exports.createComment = (req, res) => {
+    let comment = new CommentModel(req.body);
+    let postId = extractPostId(req.originalUrl, 2);
+    // console.log(comment._id + ' << comment ID');
 
-    // SAVE INSTANCE OF POST MODEL TO DB
-    comment.save( (err, comment) => {
-        // REDIRECT TO THE ROOT
-        return res.redirect(`/`);
-    })
-
+    PostModel.findById(postId).exec( (err, post) => {
+        comment.save( (err, comment) => {
+            post.comment.unshift(comment);
+            post.save();
+            res.redirect(`/posts/` + post._id);
+        });
+    }).catch( (err) => {
+        res.redirect('/');
+    });
 };
+
+// db.students.update(
+//     { name: "joe" },
+//     { $push: { scores: { $each: [ 90, 92, 85 ] } } }
+// )
+
+
+function extractPostId(url, segmentPart) {
+    urlParts = url.split('/');
+    return urlParts[segmentPart];
+}

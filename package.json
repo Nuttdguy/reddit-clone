@@ -9,9 +9,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
     "express": "^4.15.4",
     "express-handlebars": "^3.0.0",
+    "jsonwebtoken": "^8.0.1",
     "method-override": "^2.3.9",
     "mongoose": "^4.11.12"
   },

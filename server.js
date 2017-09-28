@@ -3,24 +3,35 @@ const express = require('express'),
     mongoose = require('mongoose'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
+    cookieParser = require('cookie-parser'),
     postController = require('./controllers/posts.controller'),
-    commentsController = require('./controllers/comments.controller');
+    commentsController = require('./controllers/comments.controller'),
+    signupController = require('./controllers/auth.controller');
 
 
 const mainapp = express();
+const exphbs = handlebars.create({
+    extname: '.hbs',
+    defaultLayout: 'main',
+    helpers: {
+        count: function(count) {
+            return count.size();
+        }
+    },
+    // can use external function
+});
+
 const router = express.Router();
-
-
 const portNumber = process.env.CRUD_PORT_NR || 3000;
 
 
 // Set configuration
-mainapp.engine('handlebars', handlebars({ defaultLayout: 'main'}));
-mainapp.set('view engine', 'handlebars');
+mainapp.engine('.hbs', exphbs.engine);
+mainapp.set('view engine', '.hbs');
 mainapp.use(bodyParser.urlencoded( { extended: true }));
 mainapp.use(methodOverride('_method'));
 mainapp.use(express.static('./public'));
-
+mainapp.use(cookieParser());
 
 mongoose.connect('mongodb://localhost/reddit-clone');
 
@@ -37,8 +48,16 @@ router.get('/posts/:id', postController.getPostById);
 router.get('/n/:subreddit', postController.getPostReddit);
 
 router.get('/comments/:postId/comments', commentsController.newComment);
-router.post('/comments/:postId/comments', commentsController.saveComments);
-// router.post('/n/:subreddit', postController.postReddit);
+router.post('/comments/:postId/comments', commentsController.createComment);
+
+router.get('/signup', signupController.getSignUp);
+router.post('/signup', signupController.signUp);
+
+
+// start application
+mainapp.listen(portNumber, () => {
+    console.log('Application is running on port == ' + portNumber);
+});
 
 
 // // Let's say it's like this in this example
@@ -67,10 +86,3 @@ router.post('/comments/:postId/comments', commentsController.saveComments);
 //         });
 //     });
 // });
-
-
-// start application
-mainapp.listen(portNumber, () => {
-    console.log('Application is running on port == ' + portNumber);
-});
-
