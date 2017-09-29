@@ -3,10 +3,11 @@ const CommentModel = require('../models/comments.model'),
 
 
 exports.newComment = (req, res) => {
-    console.log(req.params.postId);
+    // console.log(req.params.postId);
+    let currentUser = req.user;
     PostModel.findById(req.params.postId).exec((err, post) => {
         // console.log(post);
-        res.render('comments-new', { post });
+        res.render('comments-new', { post, currentUser });
     });
 };
 
@@ -26,12 +27,6 @@ exports.createComment = (req, res) => {
         res.redirect('/');
     });
 };
-
-// db.students.update(
-//     { name: "joe" },
-//     { $push: { scores: { $each: [ 90, 92, 85 ] } } }
-// )
-
 
 function extractPostId(url, segmentPart) {
     urlParts = url.split('/');

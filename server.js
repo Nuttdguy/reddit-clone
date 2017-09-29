@@ -4,9 +4,10 @@ const express = require('express'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
     cookieParser = require('cookie-parser'),
+    jsonwebtoken = require('jsonwebtoken'),
     postController = require('./controllers/posts.controller'),
     commentsController = require('./controllers/comments.controller'),
-    signupController = require('./controllers/auth.controller');
+    authController = require('./controllers/auth.controller');
 
 
 const mainapp = express();
@@ -21,8 +22,24 @@ const exphbs = handlebars.create({
     // can use external function
 });
 
+const checkAuth = function(req, res, next) {
+    console.log('Checking Authentication');
+
+    if (typeof req.cookies.nToken === 'undefined' || req.cookies.nToken === null) {
+        req.user = null;
+    } else {
+        let token = req.cookies.nToken;
+        let decodedToken = jsonwebtoken.decode(token, { complete: true }) || {};
+
+        req.user = decodedToken.payload;
+    }
+    process.env.SECRET = req.cookies.nToken;
+    next();
+};
+
+
 const router = express.Router();
-const portNumber = process.env.CRUD_PORT_NR || 3000;
+const portNumber = process.env.PORT || 3000;
 
 
 // Set configuration
@@ -32,8 +49,10 @@ mainapp.use(bodyParser.urlencoded( { extended: true }));
 mainapp.use(methodOverride('_method'));
 mainapp.use(express.static('./public'));
 mainapp.use(cookieParser());
+mainapp.use(checkAuth);
 
 mongoose.connect('mongodb://localhost/reddit-clone');
+mongoose.Promise = global.Promise;
 
 
 mainapp.use('/', router);
@@ -50,8 +69,12 @@ router.get('/n/:subreddit', postController.getPostReddit);
 router.get('/comments/:postId/comments', commentsController.newComment);
 router.post('/comments/:postId/comments', commentsController.createComment);
 
-router.get('/signup', signupController.getSignUp);
-router.post('/signup', signupController.signUp);
+router.get('/signup', authController.getSignUp);
+router.post('/signup', authController.signUp);
+
+router.get('/logout', authController.logOut);
+router.get('/login', authController.getLogin);
+router.post('/login', authController.login);
 
 
 // start application

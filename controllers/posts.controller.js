@@ -3,17 +3,21 @@ const PostModel = require('../models/posts.model'),
 
 
 exports.getHome = (req, res) => {
+    let currentUser = req.user;
+
     PostModel.find().exec((err, posts) => {
         CommentModel.find().exec( (err, comments) => {
             res.render('posts-index', {
                 posts: posts,
-                comments: comments });
+                comments: comments,
+                currentUser: currentUser });
         });
     });
 };
 
 exports.createPost = (req, res) => {
-    res.render('posts-new', {});
+    let currentUser = req.user;
+    res.render('posts-new', { currentUser: currentUser });
 };
 
 exports.postNew = (req, res) => {
@@ -24,17 +28,19 @@ exports.postNew = (req, res) => {
 };
 
 exports.getPostById = (req, res) => {
+    let currentUser = req.user;
     PostModel.findById(req.params.id).populate('comment').exec((err, post) => {
-        console.log('This is GET POST BY ID');
-        console.log(post);
-        res.render('posts-show', {post});
+        // console.log('This is GET POST BY ID');
+        // console.log(post);
+        res.render('posts-show', { post, currentUser });
     })
 };
 
 exports.getPostReddit = (req, res) => {
+    let currentUser = req.user;
     PostModel.find( { subreddit: req.params.subreddit } )
         .exec( (err, posts) => {
-            res.render('posts-index', { posts: posts });
+            res.render('posts-index', { posts: posts, currentUser: currentUser });
         });
 };
 

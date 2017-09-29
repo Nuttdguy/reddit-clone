@@ -9,25 +9,28 @@ const UserSchema  = new Schema({
     username:       { type: String, required: true }
 });
 
+// the hash is getting created
 UserSchema.pre('save', function(next) {
     let now = new Date();
-    this.updatedAt = now;
-    if ( !this.createdAt ) { this.createdAt = now; }
+    this.updatedAt = now; // updates the time user was last updated
+
+    if ( !this.createdAt ) {
+        this.createdAt = now; // if createdAt date is NOT empty, create timestamp now
+    }
 
     let user = this;
-    // console.log(user);
     if (!user.isModified('password')) { return next(); }
 
-    bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(user.password, salt, (err, hash) => {
+    bcrypt.genSalt(10, function(err, salt) {
+        bcrypt.hash(user.password, salt, function(err, hash) {
             user.password = hash;
             next();
         })
     })
 });
 
-UserSchema.methods.comparePassword = (password, done) => {
-    bcrypt.compare(password, this.password, (err, isMatch) => {
+UserSchema.methods.comparePassword = function(password, done) {
+    bcrypt.compare(password, this.password, function(err, isMatch) {
         done(err, isMatch);
     });
 };
