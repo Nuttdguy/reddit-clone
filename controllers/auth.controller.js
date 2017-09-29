@@ -43,9 +43,8 @@ exports.login = (req, res) => {
             }
         });
 
-        // generate jwt token, assign token to env.SECRET
         let token = jwt.sign({ _id: user._id }, process.env.SECRET, { expiresIn: '60 days'});
-        process.env.SECRET = token;
+
         res.cookie('nToken', token, { maxAge: 900000, httpOnly: true });
 
         res.redirect('/');

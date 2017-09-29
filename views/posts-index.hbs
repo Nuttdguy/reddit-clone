@@ -1,6 +1,11 @@
 <div class="row">
     <div class="col-sm-8 col-sm-offset-2">
-        <a href="/posts">create new post</a><br>
+
+        {{#if currentUser}}
+            <a href="/posts">| Create new post</a><hr>
+        {{else}}
+            <h4>| Register/Sign-in to create a post</h4>
+        {{/if}}
 
         {{#each posts}}
             <li class="list-group-item">

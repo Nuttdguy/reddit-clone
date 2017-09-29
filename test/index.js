@@ -16,14 +16,3 @@ describe('Site', () => {
     });
 });
 
-
-
-// it('should have a live home page', function (done) {
-//     chai.request('localhost:3000')
-//         .get('/')
-//         .end(function (err, res){
-//             res.status.should.be.equal(200);
-//             done();
-//         });
-// });
-// });

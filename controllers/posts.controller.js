@@ -1,5 +1,6 @@
 const PostModel = require('../models/posts.model'),
-    CommentModel = require('../models/comments.model');
+    CommentModel = require('../models/comments.model'),
+    UserModel = require('../models/user.model');
 
 
 exports.getHome = (req, res) => {
@@ -21,19 +22,33 @@ exports.createPost = (req, res) => {
 };
 
 exports.postNew = (req, res) => {
-    newPost = new PostModel(req.body);
-    newPost.save().then( post => {
-        res.redirect('/');
+    // let newPost = new PostModel(req.body);
+    let currentUser = req.user;
+    UserModel.findById(req.user._id).exec(function (err, user) {
+        let post = new PostModel(req.body);
+        post.author = user; // add current user to post object
+        console.log(post);
+
+        post.save(function (err, post) {
+            // REDIRECT TO THE NEW POST
+            res.redirect('/posts/'+ post._id)
+        });
     });
+
 };
 
 exports.getPostById = (req, res) => {
     let currentUser = req.user;
-    PostModel.findById(req.params.id).populate('comment').exec((err, post) => {
-        // console.log('This is GET POST BY ID');
-        // console.log(post);
-        res.render('posts-show', { post, currentUser });
-    })
+    PostModel.findById(req.params.id)
+        .populate( { path: "comment.content", model: 'Comment'})
+        .exec((err, post) => {
+            console.log(post);
+            if (err) return console.log(post);
+            res.render('posts-show', { post: post, currentUser: currentUser });
+
+    }).catch( (err) =>{
+        console.log(err);
+    });
 };
 
 exports.getPostReddit = (req, res) => {
@@ -44,11 +59,4 @@ exports.getPostReddit = (req, res) => {
         });
 };
 
-
-// exports.postReddit = (req, res) => {
-//     PostModel.find( { subreddit: req.params.subreddit } )
-//         .exec( (err, posts) => {
-//         res.render('posts-index', { posts: posts });
-//     });
-// };
 

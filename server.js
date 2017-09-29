@@ -8,6 +8,7 @@ const express = require('express'),
     postController = require('./controllers/posts.controller'),
     commentsController = require('./controllers/comments.controller'),
     authController = require('./controllers/auth.controller');
+require('dotenv').config();
 
 
 const mainapp = express();
@@ -18,7 +19,7 @@ const exphbs = handlebars.create({
         count: function(count) {
             return count.size();
         }
-    },
+    }
     // can use external function
 });
 
@@ -33,7 +34,6 @@ const checkAuth = function(req, res, next) {
 
         req.user = decodedToken.payload;
     }
-    process.env.SECRET = req.cookies.nToken;
     next();
 };
 
